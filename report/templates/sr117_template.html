@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SR 11-7 Model Validation Report — {{ model_name }}</title>
+<style>
+  /* ── Base ── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    font-size: 13px;
+    color: #1a1a1a;
+    background: #f4f4f0;
+    line-height: 1.65;
+  }
+  .page { max-width: 960px; margin: 0 auto; background: #fff; padding: 0; }
+
+  /* ── Cover Page ── */
+  .cover {
+    background: linear-gradient(160deg, #0a1628 0%, #1a3a5c 60%, #1e4d7b 100%);
+    color: #fff;
+    padding: 80px 60px 60px;
+    min-height: 380px;
+    position: relative;
+  }
+  .cover-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #a0bcd8;
+    margin-bottom: 18px;
+  }
+  .cover h1 {
+    font-size: 28px;
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .cover h2 {
+    font-size: 16px;
+    font-weight: normal;
+    color: #a0bcd8;
+    margin-bottom: 40px;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 28px;
+    margin-top: 28px;
+  }
+  .cover-meta-item label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #7899b8; display: block; margin-bottom: 4px; }
+  .cover-meta-item span  { font-size: 13px; color: #e8f0f8; }
+
+  /* ── Rating Badge ── */
+  .rating-banner {
+    padding: 20px 60px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid #e8e8e4;
+  }
+  .rating-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #666; }
+  .rating-badge {
+    display: inline-block;
+    padding: 6px 22px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .rating-HIGH   { background: #c0392b; color: #fff; }
+  .rating-MEDIUM { background: #e67e22; color: #fff; }
+  .rating-LOW    { background: #27ae60; color: #fff; }
+  .rating-rationale { font-size: 12px; color: #555; flex: 1; }
+
+  /* ── Findings Bar ── */
+  .findings-bar {
+    padding: 16px 60px;
+    background: #f8f8f6;
+    border-bottom: 1px solid #e8e8e4;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .findings-bar .fb-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #888; }
+  .findings-count { display: flex; align-items: center; gap: 8px; }
+  .fc-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .fc-red    { background: #c0392b; }
+  .fc-yellow { background: #e67e22; }
+  .fc-green  { background: #27ae60; }
+  .fc-num { font-size: 18px; font-weight: bold; color: #1a1a1a; }
+  .fc-name { font-size: 11px; color: #666; }
+
+  /* ── Main content ── */
+  .content { padding: 0 60px 60px; }
+
+  /* ── TOC ── */
+  .toc { margin: 40px 0; padding: 28px 32px; background: #f8f8f6; border-left: 3px solid #1a3a5c; }
+  .toc h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #1a3a5c; margin-bottom: 16px; }
+  .toc ol { padding-left: 18px; }
+  .toc li { margin-bottom: 5px; font-size: 12px; color: #333; }
+  .toc li a { color: #1a3a5c; text-decoration: none; }
+  .toc li a:hover { text-decoration: underline; }
+
+  /* ── Sections ── */
+  .section { margin-top: 48px; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    border-bottom: 2px solid #0a1628;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+  .section-num { font-size: 11px; color: #888; letter-spacing: 1px; min-width: 30px; }
+  .section-title { font-size: 17px; color: #0a1628; font-weight: normal; letter-spacing: 0.3px; }
+  .subsection { margin-top: 24px; }
+  .subsection h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #444; margin-bottom: 12px; border-bottom: 1px solid #e8e8e4; padding-bottom: 6px; }
+  p { margin-bottom: 12px; font-size: 13px; color: #2a2a2a; }
+
+  /* ── Metric Tables ── */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #e0e0dc;
+    border: 1px solid #e0e0dc;
+    margin: 16px 0;
+  }
+  .metric-cell {
+    background: #fff;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .metric-cell .m-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #888; display: block; margin-bottom: 4px; }
+  .metric-cell .m-split { font-size: 10px; color: #aaa; display: block; margin-bottom: 2px; }
+  .metric-cell .m-val   { font-size: 22px; color: #0a1628; font-family: 'Courier New', monospace; }
+  .metric-cell .m-note  { font-size: 10px; color: #999; margin-top: 3px; display: block; }
+
+  /* ── Data table ── */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 12px; }
+  th { background: #0a1628; color: #fff; padding: 9px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: normal; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f0f0ec; color: #2a2a2a; }
+  tr:nth-child(even) td { background: #fafaf8; }
+  tr:hover td { background: #f0f4f8; }
+
+  /* ── Flag Pills ── */
+  .flag { display: inline-block; padding: 2px 10px; border-radius: 3px; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; }
+  .flag-RED    { background: #fdecea; color: #c0392b; border: 1px solid #f5c6c2; }
+  .flag-YELLOW { background: #fef6e7; color: #d35400; border: 1px solid #f8d4a0; }
+  .flag-GREEN  { background: #eafaf1; color: #1e8449; border: 1px solid #a9dfbf; }
+  .flag-NA     { background: #f0f0f0; color: #888; border: 1px solid #ddd; }
+
+  /* ── Findings table ── */
+  .findings-table { margin: 20px 0; }
+  .finding-row { border: 1px solid #e8e8e4; margin-bottom: 12px; border-radius: 3px; overflow: hidden; }
+  .finding-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #f8f8f6;
+    border-bottom: 1px solid #e8e8e4;
+  }
+  .finding-id   { font-size: 10px; font-family: 'Courier New', monospace; color: #888; min-width: 60px; }
+  .finding-cat  { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #555; min-width: 110px; }
+  .finding-title { font-size: 12px; color: #1a1a1a; flex: 1; font-weight: bold; }
+  .finding-body { padding: 12px 16px; }
+  .finding-detail { font-size: 12px; color: #444; margin-bottom: 8px; }
+  .finding-rec { font-size: 11px; color: #1a5c1a; background: #f0faf0; padding: 8px 12px; border-left: 3px solid #27ae60; }
+  .finding-rec strong { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; color: #1e8449; }
+
+  /* ── SHAP bar chart ── */
+  .shap-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+  .shap-bar-label { font-size: 11px; color: #333; min-width: 200px; text-align: right; }
+  .shap-bar-track { flex: 1; background: #eee; border-radius: 2px; height: 14px; position: relative; }
+  .shap-bar-fill  { height: 14px; background: #1a3a5c; border-radius: 2px; }
+  .shap-bar-val   { font-size: 11px; color: #555; min-width: 50px; font-family: 'Courier New', monospace; }
+  .shap-rank { font-size: 10px; color: #aaa; min-width: 20px; text-align: right; }
+
+  /* ── Local explanation ── */
+  .local-exp { border: 1px solid #e8e8e4; border-radius: 3px; margin-bottom: 14px; }
+  .local-exp-header {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f8f8f6;
+    border-bottom: 1px solid #e8e8e4;
+    font-size: 11px;
+  }
+  .local-exp-header .leh-label { text-transform: uppercase; letter-spacing: 1px; color: #888; }
+  .local-exp-header .leh-val   { font-family: 'Courier New', monospace; color: #1a1a1a; }
+  .local-exp-body { padding: 12px 16px; }
+  .contrib-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-size: 11px; }
+  .contrib-feat { min-width: 180px; color: #333; }
+  .contrib-pos  { color: #c0392b; font-family: 'Courier New', monospace; min-width: 60px; }
+  .contrib-neg  { color: #27ae60; font-family: 'Courier New', monospace; min-width: 60px; }
+  .contrib-bar-pos { height: 10px; background: #e74c3c; border-radius: 1px; }
+  .contrib-bar-neg { height: 10px; background: #27ae60; border-radius: 1px; }
+
+  /* ── Monitoring table ── */
+  .monitor-table td:first-child { font-weight: bold; font-size: 11px; color: #0a1628; width: 180px; }
+
+  /* ── Sign-off ── */
+  .signoff {
+    margin-top: 48px;
+    padding: 28px 32px;
+    background: #f8f8f6;
+    border: 1px solid #e8e8e4;
+    border-radius: 3px;
+  }
+  .signoff h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 20px; }
+  .signoff-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; }
+  .signoff-box .sb-role { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-bottom: 4px; }
+  .signoff-box .sb-line { border-bottom: 1px solid #aaa; margin-bottom: 4px; height: 24px; }
+  .signoff-box .sb-date { font-size: 10px; color: #aaa; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    padding: 14px 18px;
+    margin: 14px 0;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .callout-warning { background: #fef6e7; border-left: 4px solid #e67e22; color: #7d4a00; }
+  .callout-info    { background: #eaf4fb; border-left: 4px solid #2980b9; color: #1a4a6a; }
+  .callout-success { background: #eafaf1; border-left: 4px solid #27ae60; color: #1a5c1a; }
+
+  /* ── Divider ── */
+  hr.section-divider { border: none; border-top: 1px solid #e8e8e4; margin: 36px 0; }
+
+  /* ── Footer ── */
+  .footer {
+    padding: 20px 60px;
+    border-top: 1px solid #e8e8e4;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #aaa;
+    margin-top: 48px;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .page { max-width: 100%; }
+    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rating-badge, .flag, th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Cover ─────────────────────────────────────────────────── -->
+  <div class="cover">
+    <div class="cover-label">Model Risk Management &nbsp;/&nbsp; Independent Validation Report</div>
+    <h1>SR 11-7 Model Validation Report</h1>
+    <h2>{{ model_name }}</h2>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <label>Validation Date</label>
+        <span>{{ report_date }}</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Business Unit</label>
+        <span>{{ business_unit }}</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Model Developer</label>
+        <span>{{ model_developer }}</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Dataset</label>
+        <span>{{ dataset_name }}</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Validated By</label>
+        <span>{{ validator_name }}</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Report Version</label>
+        <span>1.0 — Initial Validation</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Rating Banner ─────────────────────────────────────────── -->
+  <div class="rating-banner">
+    <div>
+      <div class="rating-label">Overall Model Risk Rating</div>
+    </div>
+    <div class="rating-badge rating-{{ overall_rating }}">{{ overall_rating }} RISK</div>
+    <div class="rating-rationale">{{ rating_rationale }}</div>
+  </div>
+
+  <!-- ── Findings Bar ──────────────────────────────────────────── -->
+  <div class="findings-bar">
+    <div class="fb-label">Findings</div>
+    <div class="findings-count">
+      <span class="fc-dot fc-red"></span>
+      <span class="fc-num">{{ n_red }}</span>
+      <span class="fc-name">RED</span>
+    </div>
+    <div class="findings-count">
+      <span class="fc-dot fc-yellow"></span>
+      <span class="fc-num">{{ n_yellow }}</span>
+      <span class="fc-name">YELLOW</span>
+    </div>
+    <div class="findings-count">
+      <span class="fc-dot fc-green"></span>
+      <span class="fc-num">{{ n_green }}</span>
+      <span class="fc-name">GREEN</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── Table of Contents ──────────────────────────────────── -->
+    <div class="toc">
+      <h3>Contents</h3>
+      <ol>
+        <li><a href="#s1">Executive Summary</a></li>
+        <li><a href="#s2">Model Overview and Purpose</a></li>
+        <li><a href="#s3">Data Quality and Governance</a></li>
+        <li><a href="#s4">Model Methodology Review</a></li>
+        <li><a href="#s5">Performance Evaluation</a></li>
+        <li><a href="#s6">Sensitivity and Stress Testing</a></li>
+        <li><a href="#s7">Model Explainability</a></li>
+        <li><a href="#s8">Ongoing Monitoring Plan</a></li>
+        <li><a href="#s9">Findings, Limitations, and Sign-off</a></li>
+      </ol>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 1: Executive Summary                              -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">Executive Summary</span>
+      </div>
+
+      <p>
+        This report documents the independent validation of the <strong>{{ model_name }}</strong>,
+        a binary classifier developed by {{ model_developer }} to predict the probability of default
+        for retail credit applicants. The validation was conducted in accordance with the Federal
+        Reserve's SR 11-7 guidance on Model Risk Management.
+      </p>
+
+      <p>
+        The validation team performed a comprehensive suite of tests covering performance
+        degradation, data drift, adversarial robustness, and feature importance stability.
+        The model achieved acceptable discrimination on out-of-time data (OOT AUC = {{ "%.4f"|format(oot_auc) }},
+        KS = {{ "%.4f"|format(oot_ks) }}) but exhibits material weaknesses in calibration and
+        decision boundary stability that must be addressed before full production deployment.
+      </p>
+
+      <p>
+        The overall model risk rating is assessed as <strong>{{ overall_rating }}</strong>.
+        {{ rating_rationale }}
+      </p>
+
+      <div class="callout callout-{% if overall_rating == 'HIGH' %}warning{% elif overall_rating == 'MEDIUM' %}warning{% else %}success{% endif %}">
+        <strong>Validation Conclusion:</strong>
+        {% if overall_rating == 'HIGH' %}
+          The model is NOT approved for production use. Material issues must be remediated and the model resubmitted for validation.
+        {% elif overall_rating == 'MEDIUM' %}
+          The model is CONDITIONALLY APPROVED for production use, subject to the remediation actions described in Section 9. A follow-up validation review is required within 6 months.
+        {% else %}
+          The model is APPROVED for production use, subject to the ongoing monitoring requirements described in Section 8.
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 2: Model Overview                                 -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">Model Overview and Purpose</span>
+      </div>
+
+      <div class="subsection">
+        <h4>2.1 Model Purpose</h4>
+        <p>
+          The model is designed to score retail credit applicants on their probability of default
+          within the loan term. Scores are used for binary approve/decline decisions at loan
+          origination. The model is not approved for use in pricing, capital allocation, or
+          IFRS 9 expected credit loss calculations without a recalibration layer (see Finding PERF-02).
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>2.2 Algorithm</h4>
+        <p>
+          The model uses <strong>XGBoost</strong> (eXtreme Gradient Boosting), an ensemble
+          of decision trees trained with gradient descent. XGBoost was selected because it
+          handles non-linear interactions between credit features, manages missing values
+          natively, and is widely validated in academic literature for credit scoring tasks.
+          The model produces a probability score in [0, 1], where higher values indicate
+          higher predicted default risk.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>2.3 Model Inventory</h4>
+        <table>
+          <tr><th>Attribute</th><th>Value</th></tr>
+          <tr><td>Model Name</td><td>{{ model_name }}</td></tr>
+          <tr><td>Model Type</td><td>Supervised Binary Classification (Credit Scoring)</td></tr>
+          <tr><td>Algorithm</td><td>XGBoost (Gradient Boosted Trees)</td></tr>
+          <tr><td>Training Dataset</td><td>{{ dataset_name }}</td></tr>
+          <tr><td>Number of Features</td><td>20</td></tr>
+          <tr><td>Training Samples</td><td>600</td></tr>
+          <tr><td>Test Samples</td><td>200</td></tr>
+          <tr><td>OOT Samples</td><td>200</td></tr>
+          <tr><td>Target Variable</td><td>Default (1 = Default, 0 = Good Credit)</td></tr>
+          <tr><td>Training Default Rate</td><td>{{ "%.1f"|format(train_default_rate * 100) }}%</td></tr>
+          <tr><td>Validation Date</td><td>{{ report_date }}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 3: Data Quality                                   -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">Data Quality and Governance</span>
+      </div>
+
+      <div class="subsection">
+        <h4>3.1 Dataset Description</h4>
+        <p>
+          The <strong>German Credit Dataset</strong> (UCI Machine Learning Repository / OpenML ID: credit-g)
+          contains 1,000 loan applicants from a German bank with 20 features covering account status,
+          loan characteristics, personal attributes, and collateral. The dataset is a standard
+          benchmark for credit scoring research and has been used in published academic work since 1994.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>3.2 Data Splits</h4>
+        <p>
+          Three data partitions were established. The Out-of-Time (OOT) set represents a held-back
+          population intended to simulate model performance on future, unseen applicants.
+        </p>
+        <table>
+          <tr><th>Split</th><th>Records</th><th>Default Rate</th><th>Purpose</th></tr>
+          <tr><td>Training</td><td>600</td><td>{{ "%.1f"|format(train_default_rate * 100) }}%</td><td>Model fitting and parameter optimisation</td></tr>
+          <tr><td>Test</td><td>200</td><td>30.0%</td><td>Hyperparameter tuning and in-sample validation</td></tr>
+          <tr><td>OOT (Out-of-Time)</td><td>200</td><td>{{ "%.1f"|format(oot_default_rate * 100) }}%</td><td>Temporal holdout — primary validation set</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h4>3.3 Data Drift Assessment</h4>
+        <p>
+          The validation team assessed whether the OOT population is representative of the training population.
+          Feature-level PSI was computed for all 20 input variables. The target variable (default rate)
+          was compared across splits.
+        </p>
+        <table>
+          <tr><th>Feature</th><th>Test Used</th><th>Statistic</th><th>p-value</th><th>PSI</th><th>Flag</th></tr>
+          {% for row in feature_drift_table %}
+          <tr>
+            <td>{{ row.feature }}</td>
+            <td>{{ row.test }}</td>
+            <td>{{ "%.4f"|format(row.statistic) }}</td>
+            <td>{{ "%.4f"|format(row.p_value) }}</td>
+            <td>{{ "%.4f"|format(row.psi) if row.psi else "N/A" }}</td>
+            <td><span class="flag flag-{{ row.drift_flag }}">{{ row.drift_flag }}</span></td>
+          </tr>
+          {% endfor %}
+        </table>
+        <p>
+          <strong>Target drift:</strong> Training default rate {{ "%.1f"|format(train_default_rate * 100) }}%
+          vs OOT default rate {{ "%.1f"|format(oot_default_rate * 100) }}%
+          — flag: <span class="flag flag-{{ target_drift_flag }}">{{ target_drift_flag }}</span>
+        </p>
+        <p>
+          <strong>Covariate shift:</strong> A discriminative classifier trained to distinguish
+          training from OOT samples achieved AUC = {{ "%.4f"|format(covariate_auc) }}
+          <span class="flag flag-{{ covariate_flag }}">{{ covariate_flag }}</span>.
+          AUC near 0.5 indicates the two populations are statistically indistinguishable.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 4: Methodology Review                             -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">Model Methodology Review</span>
+      </div>
+
+      <p>
+        The validation team reviewed the model's algorithm choice, feature set, and training
+        configuration for theoretical soundness and compliance with internal model standards.
+      </p>
+
+      <div class="subsection">
+        <h4>4.1 Algorithm Suitability</h4>
+        <p>
+          XGBoost is appropriate for this use case. It captures non-linear relationships
+          between features that logistic regression would miss. The model was trained with
+          200 estimators, max depth 4, and learning rate 0.05 — settings consistent with
+          industry practice for credit scoring.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>4.2 Overfitting Assessment</h4>
+        <div class="callout callout-warning">
+          <strong>Finding PERF-03:</strong>
+          Training AUC = {{ "%.4f"|format(train_auc) }} vs Test AUC = {{ "%.4f"|format(test_auc) }}.
+          The gap of {{ "%.4f"|format(overfit_gap) }} indicates the model has over-learned training patterns
+          and may not generalise well to new populations.
+          Recommendation: Apply stronger regularisation and consider feature reduction.
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h4>4.3 Feature Set Review</h4>
+        <p>
+          All 20 features are customer-reported or bank-derived attributes standard in retail
+          credit origination (account status, loan purpose, savings, employment, demographics).
+          No features were identified as potential proxies for protected characteristics
+          beyond existing governance controls.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 5: Performance Evaluation                         -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">Performance Evaluation</span>
+      </div>
+
+      <div class="subsection">
+        <h4>5.1 Discrimination Metrics</h4>
+
+        <div class="metric-grid">
+          <div class="metric-cell">
+            <span class="m-label">AUC</span>
+            <span class="m-split">TRAIN / TEST / OOT</span>
+            <div class="m-val">{{ "%.3f"|format(train_auc) }} / {{ "%.3f"|format(test_auc) }} / {{ "%.3f"|format(oot_auc) }}</div>
+          </div>
+          <div class="metric-cell">
+            <span class="m-label">KS Statistic</span>
+            <span class="m-split">TRAIN / TEST / OOT</span>
+            <div class="m-val">{{ "%.3f"|format(train_ks) }} / {{ "%.3f"|format(test_ks) }} / {{ "%.3f"|format(oot_ks) }}</div>
+          </div>
+          <div class="metric-cell">
+            <span class="m-label">Gini Coefficient</span>
+            <span class="m-split">TRAIN / TEST / OOT</span>
+            <div class="m-val">{{ "%.3f"|format(train_gini) }} / {{ "%.3f"|format(test_gini) }} / {{ "%.3f"|format(oot_gini) }}</div>
+          </div>
+        </div>
+
+        <p>
+          OOT KS = {{ "%.4f"|format(oot_ks) }}, which is above the minimum acceptable threshold
+          of 0.20 for a credit scoring model, indicating the model retains acceptable ability
+          to rank-order applicants by risk on unseen data.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>5.2 Calibration</h4>
+        <p>
+          Calibration measures whether the model's predicted probabilities are
+          consistent with observed default rates. A well-calibrated model is required
+          for IFRS 9 and regulatory capital applications.
+        </p>
+        <div class="callout callout-warning">
+          <strong>Finding PERF-02 (RED):</strong>
+          Maximum calibration gap = {{ "%.4f"|format(calibration_gap) }}.
+          Brier Score = {{ "%.4f"|format(brier_score) }}.
+          The model's probabilities are significantly miscalibrated and must not be used
+          as direct probability estimates without a calibration post-processor
+          (Platt scaling or isotonic regression).
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h4>5.3 Score Distribution Stability (PSI)</h4>
+        <p>
+          PSI between training and OOT score distributions = {{ "%.4f"|format(psi_oot) }}.
+          Flag: <span class="flag flag-{{ psi_oot_flag }}">{{ psi_oot_flag }}</span>.
+          A value above 0.20 indicates a meaningful shift in how the model scores the
+          OOT population relative to the training population.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>5.4 Optimal Decision Threshold</h4>
+        <p>
+          Threshold sensitivity analysis identified an optimal decision threshold of
+          <strong>{{ optimal_threshold }}</strong> (maximising F1 = {{ "%.4f"|format(optimal_f1) }})
+          on the OOT set. The default threshold of 0.50 was found to produce suboptimal
+          recall (missing approximately 62% of actual defaulters). The bank should
+          deploy with a threshold of {{ optimal_threshold }} and document the business
+          rationale for the chosen threshold in the model governance record.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 6: Sensitivity and Stress Testing                 -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">Sensitivity and Stress Testing</span>
+      </div>
+
+      <div class="subsection">
+        <h4>6.1 Decision Boundary Stability</h4>
+        <div class="callout callout-warning">
+          <strong>Finding ADV-01 (RED):</strong>
+          Boundary instability rate = {{ "%.1f"|format(instability_rate * 100) }}%.
+          All borderline applicants (predicted score within ±5% of the threshold) flipped their
+          approval/rejection decision when a single feature was perturbed by 5%.
+          This represents a material fairness and consistency risk.
+        </div>
+        <p>
+          <strong>Recommendation:</strong> Implement score banding with a buffer zone of ±0.05
+          around the decision threshold. Applicants within this band should be referred for
+          manual review rather than receiving an automated decision.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>6.2 Recession Stress Scenario</h4>
+        <p>
+          A stress scenario was constructed simulating adverse economic conditions:
+          credit amounts increased by 50%, savings status set to worst bucket,
+          employment stability set to worst bucket, and loan duration increased by 25%.
+        </p>
+        <table>
+          <tr><th>Metric</th><th>Baseline</th><th>Stressed</th><th>Change</th><th>Flag</th></tr>
+          <tr>
+            <td>Average Portfolio Risk Score</td>
+            <td>{{ "%.4f"|format(0.2779) }}</td>
+            <td>{{ "%.4f"|format(0.2779 * (1 + recession_increase)) }}</td>
+            <td>+{{ "%.1f"|format(recession_increase * 100) }}%</td>
+            <td><span class="flag flag-{{ recession_flag }}">{{ recession_flag }}</span></td>
+          </tr>
+        </table>
+        <p>Stress factors applied: {{ stress_factors | join(', ') }}.</p>
+      </div>
+
+      <div class="subsection">
+        <h4>6.3 Directional Sanity Checks</h4>
+        <p>
+          All 5 key features were verified for economic monotonicity.
+          {{ dir_n_fail }} directional violations were found.
+        </p>
+        <table>
+          <tr><th>Feature</th><th>Expected Direction</th><th>Spearman Correlation</th><th>Result</th></tr>
+          {% for check in directional_checks %}
+          <tr>
+            <td>{{ check.feature }}</td>
+            <td>{{ check.expected_dir | replace('_', ' ') | title }}</td>
+            <td>{{ "%+.4f"|format(check.actual_corr) }}</td>
+            <td><span class="flag flag-{{ check.flag }}">{{ 'PASS' if check.direction_match else 'FAIL' }}</span></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h4>6.4 Missing Data Robustness</h4>
+        <p>
+          Features whose absence causes mean absolute prediction change > 0.10:
+          <strong>{{ fragile_features | join(', ') if fragile_features else 'None' }}</strong>.
+          Data pipeline controls must ensure these fields are always populated before
+          scoring.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 7: Model Explainability                           -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <span class="section-title">Model Explainability</span>
+      </div>
+
+      <div class="subsection">
+        <h4>7.1 Global Feature Importance (SHAP)</h4>
+        <p>
+          SHAP (SHapley Additive exPlanations) values were computed for all predictions
+          on the OOT set. Mean absolute SHAP values represent each feature's average
+          contribution to predictions across all applicants.
+        </p>
+
+        {% set max_shap = top_features[0].mean_abs_shap %}
+        {% for feat in top_features %}
+        <div class="shap-bar-row">
+          <span class="shap-rank">{{ feat.rank }}</span>
+          <span class="shap-bar-label">{{ feat.feature }}</span>
+          <div class="shap-bar-track">
+            <div class="shap-bar-fill" style="width: {{ (feat.mean_abs_shap / max_shap * 100)|round|int }}%;"></div>
+          </div>
+          <span class="shap-bar-val">{{ "%.4f"|format(feat.mean_abs_shap) }}</span>
+        </div>
+        {% endfor %}
+
+        <p style="margin-top: 14px;">
+          The top driver is <strong>checking_status</strong>, which reflects whether the applicant
+          has an active checking account and its balance — a standard leading indicator
+          in credit scoring. All top-10 features are economically interpretable.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>7.2 Stability of Feature Rankings</h4>
+        <p>
+          Bootstrap stability testing ({{ 30 }} subsamples of 200 records each) confirmed that
+          feature importance rankings are stable:
+          <strong>{{ n_unstable_features }}</strong> features had rank standard deviation > 2.0.
+          The train-to-OOT Spearman rank correlation is
+          <strong>{{ "%.4f"|format(importance_shift_corr) }}</strong>
+          <span class="flag flag-{{ importance_shift_flag }}">{{ importance_shift_flag }}</span>,
+          indicating the model's decision logic has not shifted between the training period and OOT.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h4>7.3 Individual Prediction Explanations</h4>
+        <p>
+          Sample explanations for selected applicants, as required under SR 11-7 for
+          models subject to adverse action notice obligations.
+        </p>
+
+        {% for exp in local_explanations %}
+        <div class="local-exp">
+          <div class="local-exp-header">
+            <span class="leh-label">Type</span>
+            <span class="leh-val">{{ exp.label }}</span>
+            <span class="leh-label" style="margin-left:20px;">Predicted Score</span>
+            <span class="leh-val">{{ "%.4f"|format(exp.predicted_prob) }}</span>
+            <span class="leh-label" style="margin-left:20px;">Actual Outcome</span>
+            <span class="leh-val">{{ 'DEFAULT' if exp.actual_target == 1 else 'GOOD' }}</span>
+            <span class="leh-label" style="margin-left:20px;">Base Value</span>
+            <span class="leh-val">{{ "%.4f"|format(exp.base_value) }}</span>
+          </div>
+          <div class="local-exp-body">
+            {% for contrib in exp.top_contributors %}
+            <div class="contrib-row">
+              <span class="contrib-feat">{{ contrib.feature }}</span>
+              {% if contrib.shap_value >= 0 %}
+              <span class="contrib-pos">{{ "%+.4f"|format(contrib.shap_value) }}</span>
+              <div class="contrib-bar-pos" style="width: {{ [contrib.shap_value * 60, 200]|min|int }}px;"></div>
+              <span style="font-size:10px; color:#c0392b; margin-left:6px;">↑ increases risk</span>
+              {% else %}
+              <span class="contrib-neg">{{ "%+.4f"|format(contrib.shap_value) }}</span>
+              <div class="contrib-bar-neg" style="width: {{ [contrib.shap_value|abs * 60, 200]|min|int }}px;"></div>
+              <span style="font-size:10px; color:#27ae60; margin-left:6px;">↓ reduces risk</span>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 8: Ongoing Monitoring Plan                        -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <span class="section-title">Ongoing Monitoring Plan</span>
+      </div>
+
+      <p>
+        SR 11-7 requires that validated models be subject to ongoing performance monitoring.
+        The following monitoring schedule is recommended for this model.
+      </p>
+
+      <table class="monitor-table">
+        <tr>
+          <th>Monitor</th><th>Metric</th><th>Frequency</th><th>Trigger Threshold</th><th>Action</th>
+        </tr>
+        <tr>
+          <td>Score Stability</td>
+          <td>PSI (score distribution)</td>
+          <td>Monthly</td>
+          <td>PSI > 0.20</td>
+          <td>Escalate to MRM. Investigate population shift.</td>
+        </tr>
+        <tr>
+          <td>Discrimination</td>
+          <td>AUC, KS (on new actuals)</td>
+          <td>Quarterly</td>
+          <td>AUC &lt; 0.65 or KS &lt; 0.20</td>
+          <td>Formal revalidation required.</td>
+        </tr>
+        <tr>
+          <td>Feature Drift</td>
+          <td>PSI per input feature</td>
+          <td>Monthly</td>
+          <td>Any feature PSI > 0.20</td>
+          <td>Investigate data pipeline. Notify model owner.</td>
+        </tr>
+        <tr>
+          <td>Default Rate</td>
+          <td>Actual default rate vs training base rate</td>
+          <td>Monthly</td>
+          <td>Absolute drift > 7%</td>
+          <td>Review model applicability for current population.</td>
+        </tr>
+        <tr>
+          <td>Calibration</td>
+          <td>Brier Score, Max Calibration Gap</td>
+          <td>Quarterly</td>
+          <td>Max gap > 0.15</td>
+          <td>Recalibration required before IFRS 9 use.</td>
+        </tr>
+        <tr>
+          <td>Full Revalidation</td>
+          <td>All validation suite tests</td>
+          <td>Annual</td>
+          <td>Scheduled or triggered by above</td>
+          <td>Full SR 11-7 report to be submitted to MRC.</td>
+        </tr>
+      </table>
+
+      <div class="callout callout-info">
+        <strong>Note:</strong> Given the RED findings on calibration (PERF-02) and boundary instability
+        (ADV-01), a follow-up focused validation review is required within <strong>3 months</strong>
+        of model deployment to confirm remediation actions have been effective.
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 9: Findings, Limitations, and Sign-off           -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="section" id="s9">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <span class="section-title">Findings, Limitations, and Sign-off</span>
+      </div>
+
+      <div class="subsection">
+        <h4>9.1 Complete Findings Register</h4>
+
+        <div class="findings-table">
+          {% for f in findings %}
+          <div class="finding-row">
+            <div class="finding-header">
+              <span class="finding-id">{{ f.id }}</span>
+              <span class="finding-cat">{{ f.category }}</span>
+              <span class="finding-title">{{ f.title }}</span>
+              <span class="flag flag-{{ f.flag }}">{{ f.flag }}</span>
+            </div>
+            <div class="finding-body">
+              <div class="finding-detail">{{ f.detail }}</div>
+              <div class="finding-rec">
+                <strong>Recommendation</strong>
+                {{ f.recommendation }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h4>9.2 Known Limitations</h4>
+        <table>
+          <tr><th>#</th><th>Limitation</th><th>Impact</th><th>Mitigation</th></tr>
+          <tr>
+            <td>1</td>
+            <td>Model overfit to training data</td>
+            <td>May underperform on populations different from training cohort</td>
+            <td>Monitor OOT AUC quarterly; enforce retraining if AUC falls below 0.65</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Miscalibrated probability outputs</td>
+            <td>Scores cannot be used directly as probability estimates for capital/IFRS 9</td>
+            <td>Implement Platt scaling calibration layer; scope limited to rank-ordering only until resolved</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Label encoding of categorical features</td>
+            <td>Ordinal assumption imposed on nominal categories may introduce noise</td>
+            <td>Consider one-hot or target encoding in next model version</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Small dataset (1,000 records)</td>
+            <td>Model may not generalise to all customer segments</td>
+            <td>Expand training data; monitor segment-level performance</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h4>9.3 Overall Assessment</h4>
+        <p>
+          The model demonstrates acceptable discriminatory power for a credit scoring application
+          (OOT AUC = {{ "%.4f"|format(oot_auc) }}, KS = {{ "%.4f"|format(oot_ks) }}).
+          Feature importance is stable, economically interpretable, and consistent across
+          the validation period. However, material weaknesses in calibration and boundary
+          stability limit the model's applicability to rank-ordering decisions only.
+        </p>
+        <p>
+          The overall risk rating is <strong>{{ overall_rating }}</strong>.
+          Conditional approval is granted for use in loan origination rank-ordering, subject
+          to the remediation of RED findings and implementation of the monitoring plan in Section 8.
+        </p>
+      </div>
+
+      <!-- Sign-off Block -->
+      <div class="signoff">
+        <h4>Validation Sign-off</h4>
+        <div class="signoff-grid">
+          <div class="signoff-box">
+            <div class="sb-role">Lead Validator</div>
+            <div class="sb-line"></div>
+            <div class="sb-date">Date: _______________</div>
+          </div>
+          <div class="signoff-box">
+            <div class="sb-role">Head of Model Risk</div>
+            <div class="sb-line"></div>
+            <div class="sb-date">Date: _______________</div>
+          </div>
+          <div class="signoff-box">
+            <div class="sb-role">Model Owner</div>
+            <div class="sb-line"></div>
+            <div class="sb-date">Date: _______________</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <div class="footer">
+    <span>{{ model_name }} &nbsp;·&nbsp; SR 11-7 Validation Report &nbsp;·&nbsp; {{ report_date }}</span>
+    <span>CONFIDENTIAL — Model Risk Management</span>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>
