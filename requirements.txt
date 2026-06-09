@@ -1,0 +1,15 @@
+xgboost==2.0.3
+scikit-learn==1.4.0
+pandas==2.1.4
+numpy==1.26.3
+shap==0.44.0
+evidently==0.4.16
+streamlit==1.31.0
+matplotlib==3.8.2
+seaborn==0.13.2
+scipy==1.12.0
+jinja2==3.1.3
+joblib==1.3.2
+plotly==5.18.0
+weasyprint==61.2
+imbalanced-learn==0.11.0
